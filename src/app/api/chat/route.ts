@@ -8,7 +8,8 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   console.log('Chat API called');
   try {
-    const { messages } = await req.json();
+    const body = await req.json() as { messages: Array<{ role: string; content: string }> };
+    const { messages } = body;
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
