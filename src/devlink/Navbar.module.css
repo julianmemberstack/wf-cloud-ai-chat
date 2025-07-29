@@ -1,0 +1,74 @@
+.nav_component {
+  position: relative;
+  left: 0%;
+  top: 0%;
+  right: 0%;
+  bottom: auto;
+
+  width: 100%;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  background-color: hsla(0, 0.00%, 0.00%, 1.00);
+}
+
+.padding-global {
+  padding-right: 2.5rem;
+  padding-left: 2.5rem;
+}
+
+@media screen and (max-width: 767px) {
+  .padding-global {
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+  }
+}
+
+.padding-section-large {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+}
+
+@media screen and (max-width: 991px) {
+  .padding-section-large {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .padding-section-large {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+.nav_container {
+  display: flex;
+  width: 100%;
+  max-width: 80rem;
+  margin-right: auto;
+  margin-left: auto;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav_logo {
+  width: 10rem;
+}
+
+.nav_menu_link {
+  padding: 1rem;
+  color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.nav_button {
+  padding: 1rem;
+}
+
+@media screen and (max-width: 991px) {
+  .nav_button {
+    color: hsla(0, 0.00%, 100.00%, 1.00);
+  }
+}
