@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai: OpenAI | null = null;
+
+function getOpenAIClient() {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set');
+    }
+    openai = new OpenAI({ apiKey });
+  }
+  return openai;
+}
 
 export async function POST(req: NextRequest) {
   console.log('Chat API called');
@@ -19,7 +28,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const stream = await openai.chat.completions.create({
+    let client: OpenAI;
+    try {
+      client = getOpenAIClient();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'OpenAI API key is not configured' },
+        { status: 500 }
+      );
+    }
+
+    const stream = await client.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages,
       stream: true,
