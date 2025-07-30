@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,7 +9,7 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   console.log('Chat API called');
   try {
-    const body = await req.json() as { messages: Array<{ role: string; content: string }> };
+    const body = await req.json() as { messages: ChatCompletionMessageParam[] };
     const { messages } = body;
 
     if (!messages || !Array.isArray(messages)) {
