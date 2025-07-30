@@ -15,6 +15,19 @@ function getOpenAIClient() {
   return openai;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(req: NextRequest) {
   console.log('Chat API called');
   try {
@@ -24,7 +37,10 @@ export async function POST(req: NextRequest) {
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
         { error: 'Messages array is required' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: corsHeaders
+        }
       );
     }
 
@@ -34,7 +50,10 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       return NextResponse.json(
         { error: 'OpenAI API key is not configured' },
-        { status: 500 }
+        { 
+          status: 500,
+          headers: corsHeaders
+        }
       );
     }
 
@@ -70,13 +89,17 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
+        ...corsHeaders,
       },
     });
   } catch (error) {
     console.error('Chat API error:', error);
     return NextResponse.json(
       { error: 'Failed to process chat request' },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: corsHeaders
+      }
     );
   }
 }
