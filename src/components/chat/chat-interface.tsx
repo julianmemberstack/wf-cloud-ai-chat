@@ -29,6 +29,8 @@ export function ChatInterface() {
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    console.log("[CHAT] Starting to send message");
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content: input.trim(),
@@ -48,21 +50,34 @@ export function ChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      const response = await fetch("/api/chat", {
+      const apiUrl = "/api/chat";
+      console.log("[CHAT] Sending request to:", apiUrl);
+      console.log("[CHAT] Current location:", window.location.href);
+      console.log("[CHAT] Full API URL:", new URL(apiUrl, window.location.href).href);
+      
+      const requestBody = {
+        messages: [...messages, userMessage].map(({ content, role }) => ({
+          content,
+          role,
+        })),
+      };
+      console.log("[CHAT] Request body:", JSON.stringify(requestBody, null, 2));
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(({ content, role }) => ({
-            content,
-            role,
-          })),
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log("[CHAT] Response status:", response.status);
+      console.log("[CHAT] Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        const errorText = await response.text();
+        console.error("[CHAT] Error response body:", errorText);
+        throw new Error(`Failed to get response: ${response.status} ${response.statusText}`);
       }
 
       const reader = response.body?.getReader();
@@ -94,14 +109,21 @@ export function ChatInterface() {
                   });
                 }
               } catch (e) {
-                console.error("Error parsing SSE data:", e);
+                console.error("[CHAT] Error parsing SSE data:", e);
               }
             }
           }
         }
       }
+      console.log("[CHAT] Message stream completed successfully");
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("[CHAT] Error sending message:", error);
+      console.error("[CHAT] Error details:", {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
+      
       setMessages((prev) => {
         const newMessages = [...prev];
         const lastMessage = newMessages[newMessages.length - 1];
@@ -112,6 +134,7 @@ export function ChatInterface() {
       });
     } finally {
       setIsLoading(false);
+      console.log("[CHAT] Request completed, loading state cleared");
     }
   };
 

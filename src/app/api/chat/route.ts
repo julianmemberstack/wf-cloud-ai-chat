@@ -21,7 +21,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+// Add GET method for debugging
+export async function GET() {
+  console.log('[API/GET] Chat API GET request received');
+  console.log('[API/GET] Environment:', process.env.NODE_ENV);
+  console.log('[API/GET] OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+  
+  return NextResponse.json(
+    { 
+      status: 'API is running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      hasApiKey: !!process.env.OPENAI_API_KEY,
+      methods: ['GET', 'POST', 'OPTIONS']
+    },
+    { headers: corsHeaders }
+  );
+}
+
 export async function OPTIONS() {
+  console.log('[API/OPTIONS] CORS preflight request received');
   return new Response(null, {
     status: 200,
     headers: corsHeaders,
@@ -29,12 +48,19 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
-  console.log('Chat API called');
+  console.log('[API/POST] Chat API POST request received');
+  console.log('[API/POST] Headers:', Object.fromEntries(req.headers.entries()));
+  console.log('[API/POST] Method:', req.method);
+  console.log('[API/POST] URL:', req.url);
+  
   try {
     const body = await req.json() as { messages: ChatCompletionMessageParam[] };
+    console.log('[API/POST] Request body:', JSON.stringify(body, null, 2));
+    
     const { messages } = body;
 
     if (!messages || !Array.isArray(messages)) {
+      console.error('[API/POST] Invalid request: messages array is missing or not an array');
       return NextResponse.json(
         { error: 'Messages array is required' },
         { 
@@ -43,11 +69,15 @@ export async function POST(req: NextRequest) {
         }
       );
     }
+    
+    console.log('[API/POST] Messages count:', messages.length);
 
     let client: OpenAI;
     try {
       client = getOpenAIClient();
+      console.log('[API/POST] OpenAI client initialized successfully');
     } catch (error) {
+      console.error('[API/POST] Failed to initialize OpenAI client:', error);
       return NextResponse.json(
         { error: 'OpenAI API key is not configured' },
         { 
@@ -93,9 +123,14 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    console.error('[API/POST] Chat API error:', error);
+    console.error('[API/POST] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Failed to process chat request' },
+      { 
+        error: 'Failed to process chat request',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { 
         status: 500,
         headers: corsHeaders
