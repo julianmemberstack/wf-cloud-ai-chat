@@ -48,7 +48,8 @@ export function ChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      const response = await fetch("/api/chat", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
