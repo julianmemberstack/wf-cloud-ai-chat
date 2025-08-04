@@ -50,10 +50,13 @@ export function ChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      const apiUrl = "/api/chat";
+      // Use the base path from Next.js config
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/app";
+      const apiUrl = `${basePath}/api/chat`;
+      console.log("[CHAT] Base path:", basePath);
       console.log("[CHAT] Sending request to:", apiUrl);
       console.log("[CHAT] Current location:", window.location.href);
-      console.log("[CHAT] Full API URL:", new URL(apiUrl, window.location.href).href);
+      console.log("[CHAT] Full API URL:", new URL(apiUrl, window.location.origin).href);
       
       const requestBody = {
         messages: [...messages, userMessage].map(({ content, role }) => ({

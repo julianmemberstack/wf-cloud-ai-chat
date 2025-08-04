@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Temporarily removing basePath to fix API issues
-  // basePath: "/app",
+  basePath: "/app",
 };
 
 export default nextConfig;
